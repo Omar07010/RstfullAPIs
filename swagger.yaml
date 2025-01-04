@@ -1,0 +1,591 @@
+openapi: 3.0.0
+info:
+  title: E-Commerce API
+  description: API for managing payments, orders, categories, bookings, and user addresses.
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000/api/v1
+paths:
+  /payments:
+    post:
+      summary: Create a new payment
+      description: Adds a new payment record to the system.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: string
+                  description: ID of the user making the payment.
+                order:
+                  type: string
+                  description: ID of the order associated with the payment.
+                amount:
+                  type: number
+                  description: Total amount of the payment.
+                payMethod:
+                  type: string
+                  description: Method of payment (e.g., credit card, PayPal).
+                transactionId:
+                  type: string
+                  description: Unique identifier for the transaction.
+              required:
+                - userId
+                - order
+                - amount
+                - payMethod
+                - transactionId
+      responses:
+        '200':
+          description: Payment added successfully.
+        '400':
+          description: Bad request; missing required fields.
+        '500':
+          description: Internal server error.
+
+  /payments/{id}:
+    patch:
+      summary: Update payment status
+      description: Updates the status of an existing payment.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the payment to update.
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum: [pending, completed, failed]
+                  description: New status of the payment.
+              required:
+                - status
+      responses:
+        '200':
+          description: Payment status updated successfully.
+        '400':
+          description: Bad request; invalid status.
+        '404':
+          description: Payment not found.
+        '500':
+          description: Internal server error.
+
+    delete:
+      summary: Delete a payment
+      description: Deletes a payment by ID.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the payment to delete.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Payment deleted successfully.
+        '404':
+          description: Payment not found.
+        '500':
+          description: Internal server error.
+
+  /payments/all:
+    get:
+      summary: Get all payments
+      description: Retrieves all payment records.
+      responses:
+        '200':
+          description: List of payments retrieved successfully.
+        '500':
+          description: Internal server error.
+
+  /payments/{id}:
+    get:
+      summary: Get a payment by ID
+      description: Retrieves a payment record by its ID.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the payment to retrieve.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Payment retrieved successfully.
+        '404':
+          description: Payment not found.
+        '500':
+          description: Internal server error.
+
+  /orders:
+    post:
+      summary: Create a new order
+      description: Places a new order in the system.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: string
+                  description: ID of the user placing the order.
+                products:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      product:
+                        type: string
+                        description: ID of the product.
+                      quantity:
+                        type: number
+                        description: Quantity of the product.
+                amount:
+                  type: number
+                  description: Total order amount.
+              required:
+                - userId
+                - products
+                - amount
+      responses:
+        '201':
+          description: Order created successfully.
+        '500':
+          description: Internal server error.
+
+  /orders/{id}:
+    get:
+      summary: Get an order by ID
+      description: Retrieves an order record by its ID.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the order to retrieve.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Order retrieved successfully.
+        '404':
+          description: Order not found.
+        '500':
+          description: Internal server error.
+
+    put:
+      summary: Update an order
+      description: Updates an existing order.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the order to update.
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: string
+                  description: ID of the user placing the order.
+                products:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      product:
+                        type: string
+                        description: ID of the product.
+                      quantity:
+                        type: number
+                        description: Quantity of the product.
+                amount:
+                  type: number
+                  description: Total order amount.
+      responses:
+        '200':
+          description: Order updated successfully.
+        '404':
+          description: Order not found.
+        '500':
+          description: Internal server error.
+
+    delete:
+      summary: Delete an order
+      description: Deletes an order by ID.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the order to delete.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Order deleted successfully.
+        '404':
+          description: Order not found.
+        '500':
+          description: Internal server error.
+
+  /orders/income:
+    get:
+      summary: Get monthly income
+      description: Retrieves monthly income from orders.
+      responses:
+        '200':
+          description: Monthly income retrieved successfully.
+        '500':
+          description: Internal server error.
+
+  /categories:
+    post:
+      summary: Create a new category
+      description: Adds a new category to the product catalog.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: Name of the category.
+                description:
+                  type: string
+                  description: Description of the category.
+              required:
+                - name
+      responses:
+        '201':
+          description: Category created successfully.
+        '500':
+          description: Internal server error.
+
+  /categories/{id}:
+    put:
+      summary: Update a category
+      description: Updates an existing category.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the category to update.
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: Name of the category.
+                description:
+                  type: string
+                  description: Description of the category.
+      responses:
+        '200':
+          description: Category updated successfully.
+        '404':
+          description: Category not found.
+        '500':
+          description: Internal server error.
+
+    delete:
+      summary: Delete a category
+      description: Deletes a category by ID.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the category to delete.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Category deleted successfully.
+        '404':
+          description: Category not found.
+        '500':
+          description: Internal server error.
+
+  /categories/all:
+    get:
+      summary: Get all categories
+      description: Retrieves all categories from the catalog.
+      responses:
+        '200':
+          description: List of categories retrieved successfully.
+        '500':
+          description: Internal server error.
+
+  /bookings:
+    post:
+      summary: Create a new booking
+      description: Books a service or item.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: string
+                  description: ID of the user making the booking.
+                service:
+                  type: string
+                  description: ID of the service being booked.
+                date:
+                  type: string
+                  format: date-time
+                  description: Date and time of the booking.
+              required:
+                - userId
+                - service
+                - date
+      responses:
+        '201':
+          description: Booking created successfully.
+        '500':
+          description: Internal server error.
+
+  /bookings/{id}:
+    get:
+      summary: Get a booking by ID
+      description: Retrieves a booking record by its ID.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the booking to retrieve.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Booking retrieved successfully.
+        '404':
+          description: Booking not found.
+        '500':
+          description: Internal server error.
+
+    put:
+      summary: Update a booking
+      description: Updates an existing booking.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the booking to update.
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: string
+                  description: ID of the user making the booking.
+                service:
+                  type: string
+                  description: ID of the service being booked.
+                date:
+                  type: string
+                  format: date-time
+                  description: Date and time of the booking.
+      responses:
+        '200':
+          description: Booking updated successfully.
+        '404':
+          description: Booking not found.
+        '500':
+          description: Internal server error.
+
+    delete:
+      summary: Delete a booking
+      description: Deletes a booking by ID.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the booking to delete.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Booking deleted successfully.
+        '404':
+          description: Booking not found.
+        '500':
+          description: Internal server error.
+
+  /addresses:
+    post:
+      summary: Add a new address
+      description: Adds a new address for a user.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: string
+                  description: ID of the user.
+                street:
+                  type: string
+                  description: Street address.
+                city:
+                  type: string
+                  description: City of the address.
+                state:
+                  type: string
+                  description: State of the address.
+                zipCode:
+                  type: string
+                  description: ZIP code.
+                isDefault:
+                  type: boolean
+                  description: Whether this is the default address.
+              required:
+                - userId
+                - street
+                - city
+                - state
+                - zipCode
+      responses:
+        '200':
+          description: Address added successfully.
+        '400':
+          description: Bad request; missing required fields.
+        '500':
+          description: Internal server error.
+
+  /addresses/{id}:
+    put:
+      summary: Update an address
+      description: Updates an existing address.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the address to update.
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                street:
+                  type: string
+                  description: Street address.
+                city:
+                  type: string
+                  description: City of the address.
+                state:
+                  type: string
+                  description: State of the address.
+                zipCode:
+                  type: string
+                  description: ZIP code.
+                isDefault:
+                  type: boolean
+                  description: Whether this is the default address.
+      responses:
+        '200':
+          description: Address updated successfully.
+        '404':
+          description: Address not found.
+        '500':
+          description: Internal server error.
+
+    delete:
+      summary: Delete an address
+      description: Deletes an address by ID.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the address to delete.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Address deleted successfully.
+        '404':
+          description: Address not found.
+        '500':
+          description: Internal server error.
+
+  /addresses/user/{userId}:
+    get:
+      summary: Get all addresses for a user
+      description: Retrieves all addresses associated with a specific user.
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: ID of the user.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of addresses retrieved successfully.
+        '404':
+          description: User not found.
+        '500':
+          description: Internal server error.
+
+  /reports/income:
+    get:
+      summary: Get income report
+      description: Retrieves income report for a specific period.
+      parameters:
+        - name: startDate
+          in: query
+          required: true
+          description: Start date for the report (YYYY-MM-DD).
+          schema:
+            type: string
+            format: date
+        - name: endDate
+          in: query
+          required: true
+          description: End date for the report (YYYY-MM-DD).
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Income report retrieved successfully.
+        '400':
+          description: Bad request; invalid date format.
+        '500':
+          description: Internal server error.
